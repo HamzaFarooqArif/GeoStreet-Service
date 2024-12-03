@@ -1,6 +1,0 @@
-@GeoStreet_Service_HostAddress = http://localhost:5207
-
-GET {{GeoStreet_Service_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
