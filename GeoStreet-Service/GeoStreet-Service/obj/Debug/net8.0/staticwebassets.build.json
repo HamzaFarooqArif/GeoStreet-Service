@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "TQm2Tf4dgVskaf27w3Ua4gQTwMsPViXYJZWEh08pBBY=",
+  "Source": "GeoStreet-Service",
+  "BasePath": "_content/GeoStreet-Service",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
