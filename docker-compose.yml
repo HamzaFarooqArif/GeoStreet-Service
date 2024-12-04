@@ -22,7 +22,7 @@ services:
       - dev
 
   db_service:
-    image: postgres:latest
+    image: postgis/postgis:latest
     container_name: db_container
     environment:
       - POSTGRES_USER=postgres
