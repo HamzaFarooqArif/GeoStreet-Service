@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geostreet-deployment
+  labels:
+    app: geostreet
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: geostreet
+  template:
+    metadata:
+      labels:
+        app: geostreet
+    spec:
+      containers:
+      - name: geostreet-container
+        image: hamzafarooqarif/geostreet-api:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ConnectionStrings__WebApiDatabase
+          value: Host=db-service;Database=GeoStreetDb;Username=postgres;Password=postgres;Port=5432;
+        - name: ASPNETCORE_URLS
+          value: http://+:8080
