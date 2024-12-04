@@ -1,4 +1,4 @@
-﻿namespace GeoStreet_Service.Models.DomainModels
+﻿namespace GeoStreet.API.Models.DomainModels
 {
     public class Street
     {

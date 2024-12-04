@@ -1,7 +1,7 @@
-using GeoStreet_Service.Data;
-using GeoStreet_Service.Repository;
-using GeoStreet_Service.Services.Implementations;
-using GeoStreet_Service.Services.Interfaces;
+using GeoStreet.API.Data;
+using GeoStreet.API.Respository;
+using GeoStreet.API.Services.Implementations;
+using GeoStreet.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +26,7 @@ app.UseSwagger();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerUI();
-} 
+}
 else
 {
     app.UseSwaggerUI(c =>

@@ -1,6 +1,0 @@
-@GeoStreet_Service_HostAddress = http://localhost:5175
-
-GET {{GeoStreet_Service_HostAddress}}/api/street
-Accept: application/json
-
-###

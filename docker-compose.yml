@@ -6,7 +6,7 @@ networks:
 
 services:
   geostreet-service:
-    image: docker.io/library/geostreet-service:latest
+    image: docker.io/library/geostreet.api:latest
     depends_on:
       - "db_service"
     container_name: geostreet-container

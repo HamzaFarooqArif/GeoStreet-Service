@@ -1,6 +1,9 @@
-﻿using GeoStreet_Service.Models.DomainModels;
+﻿using GeoStreet.API.Models.DomainModels;
 using Microsoft.EntityFrameworkCore;
-namespace GeoStreet_Service.Data
+using System.Collections.Generic;
+using System.IO;
+
+namespace GeoStreet.API.Data
 {
     public class StreetDbContext : DbContext
     {

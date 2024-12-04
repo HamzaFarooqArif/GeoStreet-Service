@@ -1,6 +1,6 @@
-﻿using GeoStreet_Service.Models.DomainModels;
+﻿using GeoStreet.API.Models.DomainModels;
 
-namespace GeoStreet_Service.Repository
+namespace GeoStreet.API.Respository
 {
     public interface IStreetRepository
     {

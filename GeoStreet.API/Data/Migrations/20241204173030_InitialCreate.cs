@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace GeoStreet_Service.Data.Migrations
+namespace GeoStreet.API.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

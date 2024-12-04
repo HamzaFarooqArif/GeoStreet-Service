@@ -1,8 +1,8 @@
-﻿using GeoStreet_Service.Models.DomainModels;
-using GeoStreet_Service.Repository;
-using GeoStreet_Service.Services.Interfaces;
+﻿using GeoStreet.API.Models.DomainModels;
+using GeoStreet.API.Respository;
+using GeoStreet.API.Services.Interfaces;
 
-namespace GeoStreet_Service.Services.Implementations
+namespace GeoStreet.API.Services.Implementations
 {
     public class StreetService : IStreetService
     {

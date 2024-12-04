@@ -1,4 +1,4 @@
-﻿namespace GeoStreet_Service.Services.Interfaces
+﻿namespace GeoStreet.API.Services.Interfaces
 {
     public interface ISetupService
     {

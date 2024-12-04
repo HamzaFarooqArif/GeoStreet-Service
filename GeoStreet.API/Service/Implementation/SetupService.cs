@@ -1,7 +1,7 @@
-﻿using GeoStreet_Service.Repository;
-using GeoStreet_Service.Services.Interfaces;
+﻿using GeoStreet.API.Respository;
+using GeoStreet.API.Services.Interfaces;
 
-namespace GeoStreet_Service.Services.Implementations
+namespace GeoStreet.API.Services.Implementations
 {
     public class SetupService : ISetupService
     {

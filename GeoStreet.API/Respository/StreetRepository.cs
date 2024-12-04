@@ -1,8 +1,8 @@
-﻿using GeoStreet_Service.Data;
-using GeoStreet_Service.Models.DomainModels;
+﻿using GeoStreet.API.Data;
+using GeoStreet.API.Models.DomainModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace GeoStreet_Service.Repository
+namespace GeoStreet.API.Respository
 {
     public class StreetRepository : IStreetRepository
     {

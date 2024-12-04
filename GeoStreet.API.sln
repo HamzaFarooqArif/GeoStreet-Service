@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoStreet-Service", "GeoStreet-Service\GeoStreet-Service.csproj", "{1290C12D-5FAD-4777-A319-66C7E59BBAEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoStreet.API", "GeoStreet.API\GeoStreet.API.csproj", "{3B72DF04-0340-4AC1-B6A6-17B017FBC08B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1290C12D-5FAD-4777-A319-66C7E59BBAEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1290C12D-5FAD-4777-A319-66C7E59BBAEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1290C12D-5FAD-4777-A319-66C7E59BBAEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1290C12D-5FAD-4777-A319-66C7E59BBAEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B72DF04-0340-4AC1-B6A6-17B017FBC08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B72DF04-0340-4AC1-B6A6-17B017FBC08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B72DF04-0340-4AC1-B6A6-17B017FBC08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B72DF04-0340-4AC1-B6A6-17B017FBC08B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {129DFE9C-B315-4766-9DFF-0AFF84C8F673}
+		SolutionGuid = {CD2BD59A-2872-4CF1-B20A-09327CDB5FC3}
 	EndGlobalSection
 EndGlobal

@@ -1,8 +1,9 @@
-﻿using GeoStreet_Service.Models.DomainModels;
-using GeoStreet_Service.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+﻿using GeoStreet.API.Models.DomainModels;
+using GeoStreet.API.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-namespace GeoStreet_Service.Controllers
+using System.IO;
+
+namespace GeoStreet.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

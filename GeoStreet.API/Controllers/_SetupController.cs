@@ -1,7 +1,7 @@
-﻿using GeoStreet_Service.Services.Interfaces;
+﻿using GeoStreet.API.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GeoStreet_Service.Controllers
+namespace GeoStreet.API.Controllers
 {
     public class _SetupController : Controller
     {
