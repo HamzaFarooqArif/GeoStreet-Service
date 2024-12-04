@@ -1,0 +1,40 @@
+version: '3.4'
+
+networks:
+  dev:
+    driver: bridge
+
+services:
+  geostreet-service:
+    image: docker.io/library/geostreet-service:latest
+    depends_on:
+      - "db_service"
+    container_name: geostreet-container
+    ports:
+      - "8088:8080"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__WebApiDatabase=Host=db_service; Database=GeoStreetDb; Username=postgres; Password=postgres;Port=5432;
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - dev
+
+  db_service:
+    image: postgres:latest
+    container_name: db_container
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=GeoStreetDb
+    ports:
+      - "5433:5432"
+    restart: always
+    volumes:
+      - app_data:/var/lib/postgresql/data
+    networks:
+      - dev
+
+volumes:
+  app_data:
