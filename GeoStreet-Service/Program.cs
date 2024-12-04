@@ -16,8 +16,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<StreetDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase")));
 
-builder.Services.AddScoped<IStreetRepository, StreetRepository>();
+builder.Services.AddScoped<ISetupService, SetupService>();
 builder.Services.AddScoped<IStreetService, StreetService>();
+builder.Services.AddScoped<IStreetRepository, StreetRepository>();
 
 var app = builder.Build();
 

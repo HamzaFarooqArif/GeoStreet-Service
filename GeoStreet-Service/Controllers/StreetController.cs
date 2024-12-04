@@ -50,19 +50,5 @@ namespace GeoStreet_Service.Controllers
             await _service.DeleteStreetAsync(id);
             return NoContent();
         }
-
-        [HttpGet("ApplyDatabaseMigrations")]
-        public async Task<IActionResult> ApplyDatabaseMigrations()
-        {
-            try
-            {
-                await _service.ApplyDatabaseMigrations();
-                return Ok("Migrations applied successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error applying migrations: {ex.Message}");
-            }
-        }
     }
 }

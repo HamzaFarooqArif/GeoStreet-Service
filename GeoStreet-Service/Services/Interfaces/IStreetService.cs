@@ -9,6 +9,5 @@ namespace GeoStreet_Service.Services.Interfaces
         Task CreateStreetAsync(Street street);
         Task UpdateStreetAsync(Street street);
         Task DeleteStreetAsync(int id);
-        Task ApplyDatabaseMigrations();
     }
 }

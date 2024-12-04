@@ -37,10 +37,5 @@ namespace GeoStreet_Service.Services.Implementations
         {
             await _repository.DeleteAsync(id);
         }
-
-        public async Task ApplyDatabaseMigrations()
-        {
-            await _repository.ApplyDatabaseMigrations();
-        }
     }
 }
