@@ -22,11 +22,18 @@ builder.Services.AddScoped<IStreetService, StreetService>();
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "GeoStreet API v1");
-    c.RoutePrefix = "";
-});
+    app.UseSwaggerUI();
+} 
+else
+{
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "GeoStreet API v1");
+        c.RoutePrefix = "";
+    });
+}
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
