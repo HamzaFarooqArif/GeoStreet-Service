@@ -1,10 +1,12 @@
-﻿namespace GeoStreet.API.Models.DomainModels
+﻿using NetTopologySuite.Geometries;
+
+namespace GeoStreet.API.Models.DomainModels
 {
     public class Street
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Geometry { get; set; } // PostGIS geometry in WKT format
+        public required string Name { get; set; }
+        public LineString? Geometry { get; set; } // PostGIS-compatible spatial type
         public int Capacity { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace GeoStreet.API.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseNpgsql(_configuration.GetConnectionString("WebApiDatabase"));
+            options.UseNpgsql(_configuration.GetConnectionString("WebApiDatabase"), o => o.UseNetTopologySuite());
         }
         public DbSet<Street> Streets { get; set; }
     }

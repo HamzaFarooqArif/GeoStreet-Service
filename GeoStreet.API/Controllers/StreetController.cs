@@ -1,7 +1,12 @@
 ﻿using GeoStreet.API.Models.DomainModels;
 using GeoStreet.API.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
+using System.Linq;
 using System.IO;
+using GeoStreet.API.Models.ViewModels;
 
 namespace GeoStreet.API.Controllers
 {
@@ -31,17 +36,17 @@ namespace GeoStreet.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Street street)
+        public async Task<IActionResult> Create([FromBody] StreetViewModel street)
         {
             await _service.CreateStreetAsync(street);
             return CreatedAtAction(nameof(GetById), new { id = street.Id }, street);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Street street)
+        public async Task<IActionResult> Update(int id, [FromBody] StreetViewModel streetViewModel)
         {
-            if (id != street.Id) return BadRequest();
-            await _service.UpdateStreetAsync(street);
+            if (id != streetViewModel.Id) return BadRequest();
+            await _service.UpdateStreetAsync(streetViewModel);
             return NoContent();
         }
 
@@ -50,6 +55,24 @@ namespace GeoStreet.API.Controllers
         {
             await _service.DeleteStreetAsync(id);
             return NoContent();
+        }
+
+        [HttpPut("add-point/{streetId}")]
+        public async Task<IActionResult> AddPointToGeometry(int streetId, [FromBody] AddPointRequest request)
+        {
+            try
+            {
+                var updatedStreet = await _service.AddPointToStreetAsync(streetId, request);
+                return Ok(updatedStreet);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
         }
     }
 }
