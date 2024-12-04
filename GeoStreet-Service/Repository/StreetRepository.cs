@@ -7,14 +7,17 @@ namespace GeoStreet_Service.Repository
     public class StreetRepository : IStreetRepository
     {
         private readonly StreetDbContext _context;
+
         public StreetRepository(StreetDbContext context)
         {
             _context = context;
         }
+
         public async Task<IEnumerable<Street>> GetAllAsync()
         {
             return await _context.Streets.ToListAsync();
         }
+
         public async Task<Street> GetByIdAsync(int id)
         {
             return await _context.Streets.FindAsync(id);
@@ -24,11 +27,13 @@ namespace GeoStreet_Service.Repository
             await _context.Streets.AddAsync(street);
             await _context.SaveChangesAsync();
         }
+
         public async Task UpdateAsync(Street street)
         {
             _context.Streets.Update(street);
             await _context.SaveChangesAsync();
         }
+
         public async Task DeleteAsync(int id)
         {
             var street = await _context.Streets.FindAsync(id);
@@ -37,6 +42,11 @@ namespace GeoStreet_Service.Repository
                 _context.Streets.Remove(street);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task ApplyDatabaseMigrations()
+        {
+            await _context.Database.MigrateAsync();
         }
     }
 }

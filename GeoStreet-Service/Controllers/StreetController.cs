@@ -13,12 +13,14 @@ namespace GeoStreet_Service.Controllers
         {
             _service = service;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var streets = await _service.GetAllStreetsAsync();
             return Ok(streets);
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -26,12 +28,14 @@ namespace GeoStreet_Service.Controllers
             if (street == null) return NotFound();
             return Ok(street);
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Street street)
         {
             await _service.CreateStreetAsync(street);
             return CreatedAtAction(nameof(GetById), new { id = street.Id }, street);
         }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Street street)
         {
@@ -39,11 +43,26 @@ namespace GeoStreet_Service.Controllers
             await _service.UpdateStreetAsync(street);
             return NoContent();
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteStreetAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("ApplyDatabaseMigrations")]
+        public async Task<IActionResult> ApplyDatabaseMigrations()
+        {
+            try
+            {
+                await _service.ApplyDatabaseMigrations();
+                return Ok("Migrations applied successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error applying migrations: {ex.Message}");
+            }
         }
     }
 }

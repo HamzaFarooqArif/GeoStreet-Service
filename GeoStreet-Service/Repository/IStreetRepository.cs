@@ -9,5 +9,6 @@ namespace GeoStreet_Service.Repository
         Task AddAsync(Street street);
         Task UpdateAsync(Street street);
         Task DeleteAsync(int id);
+        Task ApplyDatabaseMigrations();
     }
 }
