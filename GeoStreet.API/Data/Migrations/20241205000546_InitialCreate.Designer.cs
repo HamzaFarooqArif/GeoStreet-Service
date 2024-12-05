@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GeoStreet.API.Data.Migrations
 {
     [DbContext(typeof(StreetDbContext))]
-    [Migration("20241204223526_InitialCreate")]
+    [Migration("20241205000546_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -38,7 +38,6 @@ namespace GeoStreet.API.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<LineString>("Geometry")
-                        .IsRequired()
                         .HasColumnType("geometry");
 
                     b.Property<string>("Name")

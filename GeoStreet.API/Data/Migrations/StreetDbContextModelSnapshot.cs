@@ -35,7 +35,6 @@ namespace GeoStreet.API.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<LineString>("Geometry")
-                        .IsRequired()
                         .HasColumnType("geometry");
 
                     b.Property<string>("Name")
