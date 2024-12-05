@@ -3,6 +3,7 @@ using GeoStreet.API.Models.DomainModels;
 using GeoStreet.API.Models.ViewModels;
 using GeoStreet.API.Respository;
 using GeoStreet.API.Services.Interfaces;
+using GeoStreet.API.Utility;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -50,35 +51,33 @@ namespace GeoStreet.API.Services.Implementations
             await _repository.DeleteAsync(id);
         }
 
-        public async Task<StreetViewModel> AddPointToStreetAsync(int id, AddPointRequest request)
+        public async Task<bool> AddPointToStreetAsync(int id, AddPointRequest request)
         {
-            var street = await _repository.GetByIdAsync(id);
-            if (street == null)
-            {
-                throw new KeyNotFoundException($"Street with ID {id} not found.");
-            }
+            bool result = false;
+            Coordinate newCoordinate = new Coordinate(request.Longitude, request.Latitude);
 
-            var newPoint = new Point(request.Longitude, request.Latitude) { SRID = 4326 };
-
-            if (street.Geometry == null)
+            // Fetch only the start and end coordinates of the LineString from the database
+            var startAndEndCoordinates = await _repository.GetStartAndEndCoordinatesAsync(id);
+            if (startAndEndCoordinates == null || startAndEndCoordinates.Length == 0)
             {
-                street.Geometry = new LineString(new[] { newPoint.Coordinate }) { SRID = 4326 };
+                result = await _repository.AddPointAsync(id, newCoordinate, false);
             }
             else
             {
-                if (request.AddToEnd)
-                {
-                    street.Geometry = new LineString(street.Geometry.Coordinates.Append(newPoint.Coordinate).ToArray()) { SRID = 4326 };
-                }
-                else
-                {
-                    street.Geometry = new LineString(new[] { newPoint.Coordinate }.Concat(street.Geometry.Coordinates).ToArray()) { SRID = 4326 };
-                }
+                // Extract start and end coordinates
+                var startCoordinate = startAndEndCoordinates.FirstOrDefault();
+                var endCoordinate = startAndEndCoordinates.LastOrDefault();
+
+                // Calculate distances to start and end
+                double distanceToStart = GeoUtils.CalculateDistance(newCoordinate, startCoordinate);
+                double distanceToEnd = GeoUtils.CalculateDistance(newCoordinate, endCoordinate);
+
+                // Decide whether to insert at the start or end
+                bool addToEnd = distanceToStart >= distanceToEnd;
+                result = await _repository.AddPointAsync(id, newCoordinate, addToEnd);
             }
 
-            await _repository.UpdateAsync(street);
-
-            return _mapper.Map<StreetViewModel>(street);
+            return result;
         }
     }
 }

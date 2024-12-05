@@ -10,6 +10,6 @@ namespace GeoStreet.API.Services.Interfaces
         Task CreateStreetAsync(StreetViewModel street);
         Task UpdateStreetAsync(StreetViewModel street);
         Task DeleteStreetAsync(int id);
-        Task<StreetViewModel> AddPointToStreetAsync(int id, AddPointRequest request);
+        Task<bool> AddPointToStreetAsync(int id, AddPointRequest request);
     }
 }

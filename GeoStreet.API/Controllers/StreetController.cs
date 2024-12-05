@@ -1,11 +1,5 @@
-﻿using GeoStreet.API.Models.DomainModels;
-using GeoStreet.API.Services.Interfaces;
+﻿using GeoStreet.API.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries;
-using System.Linq;
-using System.IO;
 using GeoStreet.API.Models.ViewModels;
 
 namespace GeoStreet.API.Controllers
@@ -57,13 +51,14 @@ namespace GeoStreet.API.Controllers
             return NoContent();
         }
 
-        [HttpPut("add-point/{streetId}")]
-        public async Task<IActionResult> AddPointToGeometry(int streetId, [FromBody] AddPointRequest request)
+        [HttpPut("{id}/geometry/add-point")]
+        public async Task<IActionResult> AddPointToGeometry(int id, [FromBody] AddPointRequest request)
         {
             try
             {
-                var updatedStreet = await _service.AddPointToStreetAsync(streetId, request);
-                return Ok(updatedStreet);
+                bool updateResult = await _service.AddPointToStreetAsync(id, request);
+                string result = updateResult ? "Street updated successfully" : "Update failed";
+                return Ok(updateResult);
             }
             catch (KeyNotFoundException ex)
             {
