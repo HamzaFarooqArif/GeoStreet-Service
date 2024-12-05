@@ -69,29 +69,127 @@ namespace GeoStreet.API.Respository
 
         public async Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
         {
-            // Perform the operation in a single query
-            var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
-                $@"UPDATE ""Streets""
-                   SET ""Geometry"" = 
-                   CASE
-                       WHEN ""Geometry"" IS NULL THEN 
-                           ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y})::geometry, 4326)
-                       ELSE 
-                           ST_AddPoint(
-                               ""Geometry"",
-                               ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y}), 4326),
-                               {(addToEnd ? -1 : 0)}
-                           )
-                   END
-                   WHERE ""Id"" = {streetId}");
-
-            // Check if the row was updated
-            if (rowsAffected == 0)
+            bool useDatabaseOperation = true;
+            try
             {
-                throw new KeyNotFoundException($"Street with ID {streetId} does not exist.");
+                if (useDatabaseOperation)
+                {
+                    // Perform database-level operation
+                    return await AddPointDatabaseLevelAsync(streetId, newCoordinate, addToEnd);
+                }
+                else
+                {
+                    // Perform code-level operation
+                    return await AddPointCodeLevelAsync(streetId, newCoordinate, addToEnd);
+                }
             }
+            catch (KeyNotFoundException ex)
+            {
+                throw new InvalidOperationException($"Operation failed: Street with ID {streetId} was not found.", ex);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new InvalidOperationException($"Concurrency conflict: The street with ID {streetId} was updated by another transaction.", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException($"Database error: Unable to update the geometry for Street ID {streetId}.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Unexpected error: {ex.Message}", ex);
+            }
+        }
 
-            return rowsAffected > 0;
+        private async Task<bool> AddPointDatabaseLevelAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
+        {
+            // Define a separate transaction scope
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Fetch and lock the row with FOR UPDATE
+                var geometry = await _context.Streets
+                    .FromSqlInterpolated($"SELECT * FROM \"Streets\" WHERE \"Id\" = {streetId} FOR UPDATE")
+                    .Select(s => s.Geometry)
+                    .FirstOrDefaultAsync();
+
+                if (geometry == null)
+                {
+                    throw new KeyNotFoundException($"Street with ID {streetId} does not exist.");
+                }
+
+                // Perform the geometry update
+                var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $@"UPDATE ""Streets""
+                       SET ""Geometry"" = 
+                       CASE
+                           WHEN ""Geometry"" IS NULL THEN 
+                               ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y})::geometry, 4326)
+                           ELSE 
+                               ST_AddPoint(
+                                   ""Geometry"",
+                                   ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y}), 4326),
+                                   {(addToEnd ? -1 : 0)}
+                               )
+                       END
+                       WHERE ""Id"" = {streetId}");
+
+                // Commit the transaction
+                await transaction.CommitAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                // Generic exception for unexpected issues
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        private async Task<bool> AddPointCodeLevelAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Fetch the street and its geometry
+                var street = await _context.Streets.FindAsync(streetId);
+                if (street == null)
+                {
+                    throw new KeyNotFoundException($"Street with ID {streetId} does not exist.");
+                }
+
+                if (street.Geometry == null)
+                {
+                    // Initialize geometry if null
+                    street.Geometry = new LineString(new[] { newCoordinate }) { SRID = 4326 };
+                }
+                else
+                {
+                    // Append or prepend the new coordinate
+                    if (addToEnd)
+                    {
+                        street.Geometry = new LineString(street.Geometry.Coordinates.Append(newCoordinate).ToArray()) { SRID = 4326 };
+                    }
+                    else
+                    {
+                        street.Geometry = new LineString(new[] { newCoordinate }.Concat(street.Geometry.Coordinates).ToArray()) { SRID = 4326 };
+                    }
+                }
+
+                // Save changes to the database
+                _context.Streets.Update(street);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }
