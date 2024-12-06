@@ -69,7 +69,7 @@ namespace GeoStreet.API.Respository
 
         public async Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
         {
-            bool useDatabaseOperation = false;
+            bool useDatabaseOperation = true;
             try
             {
                 if (useDatabaseOperation)

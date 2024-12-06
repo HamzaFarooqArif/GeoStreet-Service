@@ -22,24 +22,9 @@ namespace GeoStreet.API.Data
             {
                 // Use PostgreSQL for production by default
                 var connectionString = _configuration.GetConnectionString("WebApiDatabase");
-                optionsBuilder.UseNpgsql(connectionString, o => o.UseNetTopologySuite());
             }
+            optionsBuilder.UseNpgsql(o => o.UseNetTopologySuite());
             base.OnConfiguring(optionsBuilder);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-
-            modelBuilder.Entity<Street>()
-                .Property(s => s.Geometry)
-                .HasConversion(
-                    // Convert LineString to WKT for storage
-                    v => v == null ? null : v.AsText(),
-                    // Convert WKT back to LineString for retrieval
-                    v => v == null ? null : (LineString)new WKTReader(geometryFactory).Read(v)
-                )
-                .HasColumnType("TEXT"); // Store as TEXT for SQLite compatibility
         }
 
         public DbSet<Street> Streets { get; set; }

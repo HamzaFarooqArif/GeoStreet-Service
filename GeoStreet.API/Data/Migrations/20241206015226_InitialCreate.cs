@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -11,6 +12,9 @@ namespace GeoStreet.API.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:postgis", ",,");
+
             migrationBuilder.CreateTable(
                 name: "Streets",
                 columns: table => new
@@ -18,7 +22,7 @@ namespace GeoStreet.API.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Geometry = table.Column<string>(type: "TEXT", nullable: false),
+                    Geometry = table.Column<LineString>(type: "geometry", nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>

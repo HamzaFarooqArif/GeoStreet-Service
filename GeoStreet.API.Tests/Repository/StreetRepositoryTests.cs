@@ -111,18 +111,10 @@ namespace GeoStreet.API.Tests.Repository
 
             await Task.WhenAll(task1, task2);
 
-            await repository.AddPointAsync(1, new Coordinate(10, 10), false);
-
             // Assert: Verify database state
             var updatedStreet = await repository.GetByIdAsync(1);
             Assert.IsNotNull(updatedStreet);
             Assert.IsTrue(updatedStreet.Geometry.Coordinates.Length >= 3); // Ensure both points were added
-
-            // Log the coordinates for verification
-            foreach (var coord in updatedStreet.Geometry.Coordinates)
-            {
-                Console.WriteLine($"Coordinate: {coord.X}, {coord.Y}");
-            }
         }
     }
 }
