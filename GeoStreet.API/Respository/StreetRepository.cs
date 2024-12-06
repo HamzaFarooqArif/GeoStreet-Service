@@ -72,10 +72,10 @@ namespace GeoStreet.API.Respository
 
         public async Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
         {
-            bool useDatabaseOperation = true;
+            bool UseDatabaseLevelOperation = _configuration.GetValue<bool>("OperationSettings:UseDatabaseLevelOperation"); ;
             try
             {
-                if (useDatabaseOperation)
+                if (UseDatabaseLevelOperation)
                 {
                     // Perform database-level operation
                     return await AddPointDatabaseLevelAsync(streetId, newCoordinate, addToEnd);
