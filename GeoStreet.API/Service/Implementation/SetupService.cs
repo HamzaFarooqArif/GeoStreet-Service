@@ -14,5 +14,10 @@ namespace GeoStreet.API.Services.Implementations
         {
             await _repository.ApplyDatabaseMigrations();
         }
+
+        public async Task DeleteDatabase()
+        {
+            await _repository.DeleteDatabase();
+        }
     }
 }

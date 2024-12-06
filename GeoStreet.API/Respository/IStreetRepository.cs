@@ -13,5 +13,6 @@ namespace GeoStreet.API.Respository
         Task<Coordinate[]> GetStartAndEndCoordinatesAsync(int id);
         Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd);
         Task ApplyDatabaseMigrations();
+        Task DeleteDatabase();
     }
 }

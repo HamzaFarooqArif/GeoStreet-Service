@@ -3,5 +3,6 @@
     public interface ISetupService
     {
         Task ApplyDatabaseMigrations();
+        Task DeleteDatabase();
     }
 }

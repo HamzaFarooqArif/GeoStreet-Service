@@ -53,6 +53,11 @@ namespace GeoStreet.API.Respository
             await _context.Database.MigrateAsync();
         }
 
+        public async Task DeleteDatabase()
+        {
+            await _context.Database.EnsureDeletedAsync();
+        }
+
         public async Task<Coordinate[]> GetStartAndEndCoordinatesAsync(int id)
         {
             var result = await _context.Streets

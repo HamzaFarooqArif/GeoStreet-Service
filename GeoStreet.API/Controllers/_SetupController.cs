@@ -24,5 +24,19 @@ namespace GeoStreet.API.Controllers
                 return StatusCode(500, $"Error applying migrations: {ex.Message}");
             }
         }
+
+        [HttpPost("DeleteDatabase")]
+        public async Task<IActionResult> DeleteDatabase()
+        {
+            try
+            {
+                await _service.DeleteDatabase();
+                return Ok("Database deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting database: {ex.Message}");
+            }
+        }
     }
 }
