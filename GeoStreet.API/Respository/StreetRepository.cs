@@ -69,7 +69,7 @@ namespace GeoStreet.API.Respository
 
         public async Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
         {
-            bool useDatabaseOperation = true;
+            bool useDatabaseOperation = false;
             try
             {
                 if (useDatabaseOperation)
@@ -180,10 +180,10 @@ namespace GeoStreet.API.Respository
 
                 // Save changes to the database
                 _context.Streets.Update(street);
-                await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync() > 0;
 
                 await transaction.CommitAsync();
-                return true;
+                return result;
             }
             catch
             {

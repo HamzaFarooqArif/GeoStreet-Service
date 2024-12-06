@@ -1,5 +1,4 @@
 using GeoStreet.API.Data;
-using GeoStreet.API.Helper;
 using GeoStreet.API.Respository;
 using GeoStreet.API.Services.Implementations;
 using GeoStreet.API.Services.Interfaces;
@@ -20,11 +19,6 @@ builder.Services.AddDbContext<StreetDbContext>(options =>
 builder.Services.AddScoped<ISetupService, SetupService>();
 builder.Services.AddScoped<IStreetService, StreetService>();
 builder.Services.AddScoped<IStreetRepository, StreetRepository>();
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new LineStringJsonConverter());
-    });
 builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
