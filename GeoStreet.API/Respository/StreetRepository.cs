@@ -1,6 +1,7 @@
 ﻿using GeoStreet.API.Data;
 using GeoStreet.API.Models.DomainModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NetTopologySuite.Geometries;
 
 namespace GeoStreet.API.Respository
@@ -8,10 +9,12 @@ namespace GeoStreet.API.Respository
     public class StreetRepository : IStreetRepository
     {
         private readonly StreetDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public StreetRepository(StreetDbContext context)
+        public StreetRepository(StreetDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<IEnumerable<Street>> GetAllAsync()
@@ -69,7 +72,7 @@ namespace GeoStreet.API.Respository
 
         public async Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
         {
-            bool useDatabaseOperation = false;
+            bool useDatabaseOperation = true;
             try
             {
                 if (useDatabaseOperation)
@@ -119,17 +122,19 @@ namespace GeoStreet.API.Respository
                     throw new KeyNotFoundException($"Street with ID {streetId} does not exist.");
                 }
 
+                var srid = _configuration.GetValue<int>("SpatialSettings:DefaultSRID");
+
                 // Perform the geometry update
                 var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
                     $@"UPDATE ""Streets""
                        SET ""Geometry"" = 
                        CASE
                            WHEN ""Geometry"" IS NULL THEN 
-                               ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y})::geometry, 4326)
+                               ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y})::geometry, {srid})
                            ELSE 
                                ST_AddPoint(
                                    ""Geometry"",
-                                   ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y}), 4326),
+                                   ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y}), {srid}),
                                    {(addToEnd ? -1 : 0)}
                                )
                        END
@@ -153,6 +158,8 @@ namespace GeoStreet.API.Respository
 
             try
             {
+                var srid = _configuration.GetValue<int>("SpatialSettings:DefaultSRID");
+
                 // Fetch the street and its geometry
                 var street = await _context.Streets.FindAsync(streetId);
                 if (street == null)
@@ -163,18 +170,18 @@ namespace GeoStreet.API.Respository
                 if (street.Geometry == null)
                 {
                     // Initialize geometry if null
-                    street.Geometry = new LineString(new[] { newCoordinate }) { SRID = 4326 };
+                    street.Geometry = new LineString(new[] { newCoordinate }) { SRID = srid };
                 }
                 else
                 {
                     // Append or prepend the new coordinate
                     if (addToEnd)
                     {
-                        street.Geometry = new LineString(street.Geometry.Coordinates.Append(newCoordinate).ToArray()) { SRID = 4326 };
+                        street.Geometry = new LineString(street.Geometry.Coordinates.Append(newCoordinate).ToArray()) { SRID = srid };
                     }
                     else
                     {
-                        street.Geometry = new LineString(new[] { newCoordinate }.Concat(street.Geometry.Coordinates).ToArray()) { SRID = 4326 };
+                        street.Geometry = new LineString(new[] { newCoordinate }.Concat(street.Geometry.Coordinates).ToArray()) { SRID = srid };
                     }
                 }
 

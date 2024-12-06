@@ -20,6 +20,7 @@ namespace GeoStreet.API.Tests.Repository
     {
         private IServiceProvider _serviceProvider;
         private PostgreSqlContainer _postgresContainer;
+        private IConfiguration _configuration;
 
         [TestInitialize]
         public void Initialize()
@@ -40,14 +41,15 @@ namespace GeoStreet.API.Tests.Repository
                 )
             );
 
-            var configuration = new ConfigurationBuilder()
+            _configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    { "ConnectionStrings:WebApiDatabase", _postgresContainer.GetConnectionString() }
+                    { "ConnectionStrings:WebApiDatabase", _postgresContainer.GetConnectionString() },
+                    { "SpatialSettings:DefaultSRID", "4326" }
                 })
                 .Build();
 
-            services.AddSingleton<IConfiguration>(configuration);
+            services.AddSingleton<IConfiguration>(_configuration);
             services.AddScoped<IStreetRepository, StreetRepository>();
             services.AddScoped<IStreetService, StreetService>();
             services.AddAutoMapper(typeof(MappingProfile));
@@ -75,7 +77,7 @@ namespace GeoStreet.API.Tests.Repository
             var repository2 = scope1.ServiceProvider.GetRequiredService<IStreetRepository>();
 
             // Arrange: Seed the database with a street
-            var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: _configuration.GetValue<int>("SpatialSettings:DefaultSRID"));
             var initialStreet = new Street
             {
                 Id = 1,
@@ -133,7 +135,8 @@ namespace GeoStreet.API.Tests.Repository
                 var expectedMessages = new[]
                     {
                         "the connection is already in a transaction",
-                        "the connection is already in state 'executing'"
+                        "the connection is already in state 'executing'",
+                        "Connection already open",
                     };
                 Assert.IsTrue(
                     expectedMessages.Any(message => thrownException.Message.ToLower().Contains(message.ToLower())),
