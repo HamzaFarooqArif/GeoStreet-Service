@@ -22,7 +22,7 @@ namespace GeoStreet.API.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Geometry = table.Column<LineString>(type: "geometry", nullable: false),
+                    Geometry = table.Column<LineString>(type: "geometry", nullable: true),
                     Capacity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>

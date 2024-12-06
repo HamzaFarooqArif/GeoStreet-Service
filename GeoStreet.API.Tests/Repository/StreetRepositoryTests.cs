@@ -12,6 +12,8 @@ using NetTopologySuite;
 using GeoStreet.API.Models.DomainModels;
 using NetTopologySuite.Geometries;
 using Testcontainers.PostgreSql;
+using Microsoft.EntityFrameworkCore.Metadata;
+using NetTopologySuite.IO;
 
 namespace GeoStreet.API.Tests.Repository
 {
@@ -24,16 +26,30 @@ namespace GeoStreet.API.Tests.Repository
 
         private void BuildServiceProvider()
         {
+            BuildPostgreSQLContainer();
+
             var services = new ServiceCollection();
 
+            // Add DbContext with conditional geometry handling based on the configuration
             services.AddDbContext<StreetDbContext>(options =>
-                options.UseNpgsql(
-                    _postgresContainer.GetConnectionString(),
-                    npgsqlOptions => npgsqlOptions
-                        .MigrationsAssembly("GeoStreet.API") // Specify the assembly containing migrations
-                        .UseNetTopologySuite()
-                )
-            );
+            {
+                var usePostGIS = _configuration.GetValue<bool>("SpatialSettings:UsePostGIS");
+
+                if (usePostGIS)
+                {
+                    // Configure PostGIS (NetTopologySuite)
+                    options.UseNpgsql(
+                        _postgresContainer.GetConnectionString(),
+                        npgsqlOptions => npgsqlOptions
+                            .UseNetTopologySuite()
+                    );
+                }
+                else
+                {
+                    // Configure simple text column for geometry
+                    options.UseNpgsql(_postgresContainer.GetConnectionString());
+                }
+            });
 
             services.AddSingleton<IConfiguration>(_configuration);
             services.AddScoped<IStreetRepository, StreetRepository>();
@@ -53,37 +69,43 @@ namespace GeoStreet.API.Tests.Repository
             context.Database.EnsureCreated();
         }
 
-        private IConfiguration BuildConfiguration(bool useDatabaseLevelOperation)
+        private IConfiguration BuildConfiguration(bool usePostGIS)
         {
             return new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                { "ConnectionStrings:WebApiDatabase", _postgresContainer.GetConnectionString() },
-                { "SpatialSettings:DefaultSRID", "4326" },
-                { "OperationSettings:UseDatabaseLevelOperation", useDatabaseLevelOperation.ToString().ToLower() }
+                    { "ConnectionStrings:WebApiDatabase", _postgresContainer.GetConnectionString() },
+                    { "SpatialSettings:DefaultSRID", "4326" },
+                    { "SpatialSettings:UsePostGIS", usePostGIS.ToString().ToLower() },
                 })
                 .Build();
         }
 
-        [TestInitialize]
-        public void Initialize()
+        private void BuildPostgreSQLContainer()
         {
+            if (_postgresContainer != null)
+            {
+                _postgresContainer?.DisposeAsync();
+            }
+
             // Initialize a throwaway PostgreSQL container using a PostGIS-enabled Docker image
             _postgresContainer = new PostgreSqlBuilder()
             .WithImage("postgis/postgis:12-3.0")
             .Build();
 
             _postgresContainer.StartAsync().GetAwaiter().GetResult();
+        }
 
-            // Default configuration with UseDatabaseLevelOperation set to false
-            _configuration = BuildConfiguration(useDatabaseLevelOperation: false);
-            BuildServiceProvider();
+        [TestInitialize]
+        public void Initialize()
+        {
+            BuildPostgreSQLContainer();
         }
 
         [TestMethod]
         public async Task AddPointAsync_ConcurrencyTest_CodeLevel()
         {
-            _configuration = BuildConfiguration(useDatabaseLevelOperation: false);
+            _configuration = BuildConfiguration(usePostGIS: false);
             BuildServiceProvider();
 
             using var scope1 = _serviceProvider.CreateScope();
@@ -167,18 +189,12 @@ namespace GeoStreet.API.Tests.Repository
 
             Assert.IsNotNull(street);
             Assert.IsTrue(street.Geometry.Coordinates.Length >= 3); // Ensure at least one update succeeded
-
-            // Log results for manual verification
-            foreach (var coord in street.Geometry.Coordinates)
-            {
-                Console.WriteLine($"Coordinate: {coord.X}, {coord.Y}");
-            }
         }
 
         [TestMethod]
-        public async Task AddPointAsync_ConcurrencyTest_DbLevel()
+        public async Task AddPointAsync_ConcurrencyTest_DatabaseLevel()
         {
-            _configuration = BuildConfiguration(useDatabaseLevelOperation: true);
+            _configuration = BuildConfiguration(usePostGIS: true);
             BuildServiceProvider();
 
             using var scope1 = _serviceProvider.CreateScope();
@@ -262,12 +278,6 @@ namespace GeoStreet.API.Tests.Repository
 
             Assert.IsNotNull(street);
             Assert.IsTrue(street.Geometry.Coordinates.Length >= 3); // Ensure at least one update succeeded
-
-            // Log results for manual verification
-            foreach (var coord in street.Geometry.Coordinates)
-            {
-                Console.WriteLine($"Coordinate: {coord.X}, {coord.Y}");
-            }
         }
     }
 }

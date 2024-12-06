@@ -72,7 +72,7 @@ namespace GeoStreet.API.Respository
 
         public async Task<bool> AddPointAsync(int streetId, Coordinate newCoordinate, bool addToEnd)
         {
-            bool UseDatabaseLevelOperation = _configuration.GetValue<bool>("OperationSettings:UseDatabaseLevelOperation"); ;
+            bool UseDatabaseLevelOperation = _configuration.GetValue<bool>("SpatialSettings:UsePostGIS"); ;
             try
             {
                 if (UseDatabaseLevelOperation)
@@ -127,17 +127,11 @@ namespace GeoStreet.API.Respository
                 // Perform the geometry update
                 var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
                     $@"UPDATE ""Streets""
-                       SET ""Geometry"" = 
-                       CASE
-                           WHEN ""Geometry"" IS NULL THEN 
-                               ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y})::geometry, {srid})
-                           ELSE 
-                               ST_AddPoint(
-                                   ""Geometry"",
-                                   ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y}), {srid}),
-                                   {(addToEnd ? -1 : 0)}
-                               )
-                       END
+                       SET ""Geometry"" = ST_AddPoint(
+                           ""Geometry"",
+                           ST_SetSRID(ST_MakePoint({newCoordinate.X}, {newCoordinate.Y}), {srid}),
+                           {(addToEnd ? -1 : 0)}
+                       )
                        WHERE ""Id"" = {streetId}");
 
                 // Commit the transaction
