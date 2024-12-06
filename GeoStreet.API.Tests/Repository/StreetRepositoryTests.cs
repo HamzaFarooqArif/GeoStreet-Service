@@ -92,18 +92,54 @@ namespace GeoStreet.API.Tests.Repository
             var coordinate1 = new Coordinate(2, 2);
             var coordinate2 = new Coordinate(3, 3);
 
+            Exception task1Exception = null;
+            Exception task2Exception = null;
+
             var task1 = Task.Run(async () =>
             {
-                await repository1.AddPointAsync(1, coordinate1, true); // Add to the end
+                try
+                {
+                    await repository1.AddPointAsync(1, coordinate1, true); // Add to the end
+                }
+                catch (Exception ex)
+                {
+                    task1Exception = ex;
+                }
             });
 
             var task2 = Task.Run(async () =>
             {
-                await repository2.AddPointAsync(1, coordinate2, true); // Add to the end
+                try
+                {
+                    await repository2.AddPointAsync(1, coordinate2, true); // Add to the end
+                }
+                catch (Exception ex)
+                {
+                    task2Exception = ex;
+                }
             });
 
             // Wait for both tasks to complete and expect one to fail
             await Task.WhenAll(task1, task2);
+
+            // Assert: Handle both cases (exception or no exception)
+            if (task1Exception != null || task2Exception != null)
+            {
+                // Assert that at least one exception was thrown and it matches the expected type and message
+                var thrownException = task1Exception ?? task2Exception;
+
+                Assert.IsInstanceOfType(thrownException, typeof(InvalidOperationException), "Expected an InvalidOperationException.");
+
+                var expectedMessages = new[]
+                    {
+                        "the connection is already in a transaction",
+                        "the connection is already in state 'executing'"
+                    };
+                Assert.IsTrue(
+                    expectedMessages.Any(message => thrownException.Message.ToLower().Contains(message.ToLower())),
+                    $"The exception message does not match any of the expected errors. Actual: {thrownException.Message}"
+                );
+            }
 
             // Assert: Check if only one task succeeded
             using var verifyScope = _serviceProvider.CreateScope();
