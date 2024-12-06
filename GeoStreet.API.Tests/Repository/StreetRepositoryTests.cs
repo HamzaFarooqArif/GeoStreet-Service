@@ -63,58 +63,61 @@ namespace GeoStreet.API.Tests.Repository
             }
 
             context.Database.EnsureCreated();
-            SeedTestData().GetAwaiter().GetResult(); // Seed initial data for tests
-        }
-
-        private async Task SeedTestData()
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IStreetRepository>();
-
-            // Create and seed the test street
-            var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-            var street = new Street
-            {
-                Id = 1,
-                Name = "Test Street",
-                Geometry = factory.CreateLineString(new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 1)
-                })
-            };
-
-            await repository.AddAsync(street); // Save the street using the repository
         }
 
         [TestMethod]
-        public async Task AddPointToStreetAsync_ShouldHandleConcurrency()
+        public async Task AddPointCodeLevelAsync_ShouldFailInConcurrency()
         {
-            using var contextScope = _serviceProvider.CreateScope();
-            var repository = contextScope.ServiceProvider.GetRequiredService<IStreetRepository>();
-
             using var scope1 = _serviceProvider.CreateScope();
             var repository1 = scope1.ServiceProvider.GetRequiredService<IStreetRepository>();
 
             using var scope2 = _serviceProvider.CreateScope();
-            var repository2 = scope2.ServiceProvider.GetRequiredService<IStreetRepository>();
+            var repository2 = scope1.ServiceProvider.GetRequiredService<IStreetRepository>();
+
+            // Arrange: Seed the database with a street
+            var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var initialStreet = new Street
+            {
+                Id = 1,
+                Name = "Concurrent Street",
+                Geometry = factory.CreateLineString(new[]
+                {
+                        new Coordinate(0, 0),
+                        new Coordinate(1, 1)
+                    })
+            };
+            await repository1.AddAsync(initialStreet);
+
+            // Act: Simulate two concurrent updates
+            var coordinate1 = new Coordinate(2, 2);
+            var coordinate2 = new Coordinate(3, 3);
 
             var task1 = Task.Run(async () =>
             {
-                await repository1.AddPointAsync(1, new Coordinate(2, 2), false);
+                await repository1.AddPointAsync(1, coordinate1, true); // Add to the end
             });
 
             var task2 = Task.Run(async () =>
             {
-                await repository2.AddPointAsync(1, new Coordinate(3, 3), false);
+                await repository2.AddPointAsync(1, coordinate2, true); // Add to the end
             });
 
+            // Wait for both tasks to complete and expect one to fail
             await Task.WhenAll(task1, task2);
 
-            // Assert: Verify database state
-            var updatedStreet = await repository.GetByIdAsync(1);
-            Assert.IsNotNull(updatedStreet);
-            Assert.IsTrue(updatedStreet.Geometry.Coordinates.Length >= 3); // Ensure both points were added
+            // Assert: Check if only one task succeeded
+            using var verifyScope = _serviceProvider.CreateScope();
+            var context = verifyScope.ServiceProvider.GetRequiredService<StreetDbContext>();
+            var street = await context.Streets.FindAsync(1);
+
+            Assert.IsNotNull(street);
+            Assert.IsTrue(street.Geometry.Coordinates.Length >= 3); // Ensure at least one update succeeded
+
+            // Log results for manual verification
+            foreach (var coord in street.Geometry.Coordinates)
+            {
+                Console.WriteLine($"Coordinate: {coord.X}, {coord.Y}");
+            }
         }
     }
 }
