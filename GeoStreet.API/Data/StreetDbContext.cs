@@ -21,12 +21,6 @@ namespace GeoStreet.API.Data
         {
             // Read the flag from configuration
             bool usePostGIS = _configuration.GetValue<bool>("FeatureFlags:UsePostGIS");
-
-            if (!optionsBuilder.IsConfigured)
-            {
-                // Use PostgreSQL for production by default
-                var connectionString = _configuration.GetConnectionString("WebApiDatabase");
-            }
             if (usePostGIS)
             {
                 optionsBuilder.UseNpgsql(o => o.UseNetTopologySuite());

@@ -74,7 +74,7 @@ namespace GeoStreet.API.Tests.Repository
             return new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    { "ConnectionStrings:WebApiDatabase", _postgresContainer.GetConnectionString() },
+                    { "ConnectionStrings:DefaultConnection", _postgresContainer.GetConnectionString() },
                     { "SpatialSettings:DefaultSRID", "4326" },
                     { "FeatureFlags:UsePostGIS", usePostGIS.ToString().ToLower() },
                 })
