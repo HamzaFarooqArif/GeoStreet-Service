@@ -167,12 +167,32 @@ http://localhost:5108/swagger/index.html
 start minikube
 ``` 
 
-**2.** Navigate to kubernetes folder.<br />
+**2.** Build the image under your docker username.<br />
+```bash
+docker build -t <your-docker-username>/geostreet-api:latest .
+```
+
+**3.** Login in docker.<br />
+```bash
+docker login
+```
+
+**4.** Push the image to docker hub.<br />
+```bash
+docker push <your-docker-username>/geostreet-api:latest
+```
+
+**5.** Navigate to kubernetes folder.<br />
 ```bash
 cd kubernetes
 ```
 
-**3.** Clean any previous deployments, services and persistent volumes.<br />
+**6.** Replace the docker username in geostreet-deployment.yaml <br />
+```json
+image: <your-docker-username>/geostreet-api:latest
+```
+
+**7.** Clean any previous deployments, services and persistent volumes.<br />
 ```bash
 kubectl delete pods --all
 kubectl delete deployment geostreet-deployment
@@ -180,31 +200,6 @@ kubectl delete deployment postgres-deployment
 kubectl delete service geostreet-service
 kubectl delete service db-service
 kubectl delete pvc postgres-pvc
-```
-
-**4.** Build the image under your docker username.<br />
-Go one directory back where the Dockerfile is located
-```bash
-cd ..
-```
-Then build the image
-```bash
-docker build -t <your-docker-username>/geostreet-api:latest .
-```
-
-**5.** Login in docker.<br />
-```bash
-docker login
-```
-
-**6.** Push the image to docker hub.<br />
-```bash
-docker push <your-docker-username>/geostreet-api:latest
-```
-
-**7.** Replace the docker username in geostreet-deployment.yaml <br />
-```json
-image: <your-docker-username>/geostreet-api:latest
 ```
 
 **8.** Apply deployments.<br />
