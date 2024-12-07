@@ -183,6 +183,11 @@ kubectl delete pvc postgres-pvc
 ```
 
 **4.** Build the image under your docker username.<br />
+Go one directory back where the Dockerfile is located
+```bash
+cd ..
+```
+Then build the image
 ```bash
 docker build -t <your-docker-username>/geostreet-api:latest .
 ```
