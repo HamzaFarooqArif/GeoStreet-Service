@@ -96,7 +96,7 @@ Make sure you apply database migrations with the following endpoint in the appli
 **1.** Make sure PostgreSQL and Docker are running.<br />
 
 **2.** Replace the connection string of your server in appsettings.Development.json e.g.,<br />
-```bash
+```json
 "ConnectionStrings": {
   "WebApiDatabase": "<your-postgreSQL-connection-string>"
 },
@@ -203,7 +203,7 @@ docker push <your-docker-username>/geostreet-api:latest
 ```
 
 **7.** Replace the docker username in geostreet-deployment.yaml <br />
-```bash
+```json
 image: <your-docker-username>/geostreet-api:latest
 ```
 
