@@ -33,7 +33,7 @@ namespace GeoStreet.API.Tests.Repository
             // Add DbContext with conditional geometry handling based on the configuration
             services.AddDbContext<StreetDbContext>(options =>
             {
-                var usePostGIS = _configuration.GetValue<bool>("SpatialSettings:UsePostGIS");
+                var usePostGIS = _configuration.GetValue<bool>("FeatureFlags:UsePostGIS");
 
                 if (usePostGIS)
                 {
@@ -76,7 +76,7 @@ namespace GeoStreet.API.Tests.Repository
                 {
                     { "ConnectionStrings:WebApiDatabase", _postgresContainer.GetConnectionString() },
                     { "SpatialSettings:DefaultSRID", "4326" },
-                    { "SpatialSettings:UsePostGIS", usePostGIS.ToString().ToLower() },
+                    { "FeatureFlags:UsePostGIS", usePostGIS.ToString().ToLower() },
                 })
                 .Build();
         }

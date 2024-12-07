@@ -20,7 +20,7 @@ namespace GeoStreet.API.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Read the flag from configuration
-            bool usePostGIS = _configuration.GetValue<bool>("SpatialSettings:UsePostGIS");
+            bool usePostGIS = _configuration.GetValue<bool>("FeatureFlags:UsePostGIS");
 
             if (!optionsBuilder.IsConfigured)
             {
@@ -37,7 +37,7 @@ namespace GeoStreet.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Read the flag from configuration
-            bool usePostGIS = _configuration.GetValue<bool>("SpatialSettings:UsePostGIS");
+            bool usePostGIS = _configuration.GetValue<bool>("FeatureFlags:UsePostGIS");
 
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(
                 srid: _configuration.GetValue<int>("SpatialSettings:DefaultSRID")
