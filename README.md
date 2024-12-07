@@ -133,10 +133,18 @@ Make sure you apply database migrations with the following endpoint in the appli
 **3.** (Optional) Apply database migrations.<br />
 ```bash
 cd GeoStreet.API
-rm -r Data/Migrations // Delete previous migrations if any
-dotnet ef database drop // Drop the previous database
-dotnet ef migrations add InitialCreate -o Data/Migrations // Create new migration
-dotnet ef database update // Apply migration
+
+# Delete previous migrations if any
+rm -r Data/Migrations
+
+# Drop the previous database if any
+dotnet ef database drop
+
+# Create new migration
+dotnet ef migrations add InitialCreate -o Data/Migrations
+
+# Apply the migration
+dotnet ef database update
 ```
 The application also has the following endpoint to apply migrations under _Setup controller.
 ```bash
