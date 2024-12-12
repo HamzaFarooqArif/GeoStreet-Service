@@ -50,7 +50,11 @@ namespace GeoStreet.API.Respository
 
         public async Task ApplyDatabaseMigrations()
         {
-            await _context.Database.MigrateAsync();
+            bool result = await _context.Database.EnsureCreatedAsync();
+            if(!result)
+            {
+                throw new Exception("Can't apply migrations on the existing database");
+            }
         }
 
         public async Task DeleteDatabase()
